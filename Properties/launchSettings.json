@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "09_Sound_interaction": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    }
+  }
+}

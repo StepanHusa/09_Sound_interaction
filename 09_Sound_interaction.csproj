@@ -2,15 +2,20 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <RootNamespace>_09_Sound_interaction</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>annotations</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="NAudio">
       <HintPath>NAudio.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.0.0" />
   </ItemGroup>
 
 </Project>

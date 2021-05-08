@@ -1,6 +1,6 @@
 ﻿namespace _09_Sound_interaction
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -37,6 +37,7 @@
             this.inputmorse = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.groupoutput = new System.Windows.Forms.GroupBox();
+            this.hideOutput = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
@@ -52,7 +53,10 @@
             this.errormessage = new System.Windows.Forms.Label();
             this.restart = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
-            this.Testtone = new System.Windows.Forms.Button();
+            this.settings = new System.Windows.Forms.Button();
+            this.record = new System.Windows.Forms.Button();
+            this.clr = new System.Windows.Forms.Button();
+            this.clearAudio = new System.Windows.Forms.Button();
             this.groupoutput.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -73,15 +77,15 @@
             this.play.Name = "play";
             this.play.Size = new System.Drawing.Size(146, 23);
             this.play.TabIndex = 1;
-            this.play.Text = "play the file";
+            this.play.Text = "play pause";
             this.play.UseVisualStyleBackColor = true;
             this.play.Click += new System.EventHandler(this.play_Click);
             // 
             // run
             // 
-            this.run.Location = new System.Drawing.Point(612, 170);
+            this.run.Location = new System.Drawing.Point(327, 261);
             this.run.Name = "run";
-            this.run.Size = new System.Drawing.Size(146, 38);
+            this.run.Size = new System.Drawing.Size(146, 46);
             this.run.TabIndex = 3;
             this.run.Text = "RUN";
             this.run.UseVisualStyleBackColor = true;
@@ -131,6 +135,7 @@
             // 
             // groupoutput
             // 
+            this.groupoutput.Controls.Add(this.hideOutput);
             this.groupoutput.Controls.Add(this.label6);
             this.groupoutput.Controls.Add(this.label5);
             this.groupoutput.Controls.Add(this.label8);
@@ -141,13 +146,23 @@
             this.groupoutput.Controls.Add(this.savemorsetxt);
             this.groupoutput.Controls.Add(this.savewavfile);
             this.groupoutput.Controls.Add(this.playthefile2);
-            this.groupoutput.Location = new System.Drawing.Point(13, 214);
+            this.groupoutput.Location = new System.Drawing.Point(13, 261);
             this.groupoutput.Name = "groupoutput";
-            this.groupoutput.Size = new System.Drawing.Size(775, 208);
+            this.groupoutput.Size = new System.Drawing.Size(959, 288);
             this.groupoutput.TabIndex = 9;
             this.groupoutput.TabStop = false;
             this.groupoutput.Text = "output";
             this.groupoutput.Visible = false;
+            // 
+            // hideOutput
+            // 
+            this.hideOutput.Location = new System.Drawing.Point(858, 259);
+            this.hideOutput.Name = "hideOutput";
+            this.hideOutput.Size = new System.Drawing.Size(95, 23);
+            this.hideOutput.TabIndex = 12;
+            this.hideOutput.Text = "Close Output";
+            this.hideOutput.UseVisualStyleBackColor = true;
+            this.hideOutput.Click += new System.EventHandler(this.hideOutput_Click);
             // 
             // label6
             // 
@@ -180,6 +195,7 @@
             // 
             this.outputlattin.Location = new System.Drawing.Point(141, 41);
             this.outputlattin.Name = "outputlattin";
+            this.outputlattin.ReadOnly = true;
             this.outputlattin.Size = new System.Drawing.Size(279, 23);
             this.outputlattin.TabIndex = 6;
             // 
@@ -206,6 +222,7 @@
             // 
             this.outputmorse.Location = new System.Drawing.Point(141, 83);
             this.outputmorse.Name = "outputmorse";
+            this.outputmorse.ReadOnly = true;
             this.outputmorse.Size = new System.Drawing.Size(279, 23);
             this.outputmorse.TabIndex = 7;
             // 
@@ -269,7 +286,7 @@
             // 
             // restart
             // 
-            this.restart.Location = new System.Drawing.Point(703, 20);
+            this.restart.Location = new System.Drawing.Point(897, 65);
             this.restart.Name = "restart";
             this.restart.Size = new System.Drawing.Size(75, 23);
             this.restart.TabIndex = 13;
@@ -286,22 +303,54 @@
             this.label7.TabIndex = 11;
             this.label7.Text = "audio input";
             // 
-            // Testtone
+            // settings
             // 
-            this.Testtone.Location = new System.Drawing.Point(703, 50);
-            this.Testtone.Name = "Testtone";
-            this.Testtone.Size = new System.Drawing.Size(75, 23);
-            this.Testtone.TabIndex = 14;
-            this.Testtone.Text = "Test Tone";
-            this.Testtone.UseVisualStyleBackColor = true;
-            this.Testtone.Click += new System.EventHandler(this.Testtone_Click);
+            this.settings.Location = new System.Drawing.Point(897, 12);
+            this.settings.Name = "settings";
+            this.settings.Size = new System.Drawing.Size(75, 47);
+            this.settings.TabIndex = 15;
+            this.settings.Text = "settings and debug";
+            this.settings.UseVisualStyleBackColor = true;
+            this.settings.Click += new System.EventHandler(this.settings_Click);
             // 
-            // Form1
+            // record
+            // 
+            this.record.Location = new System.Drawing.Point(460, 163);
+            this.record.Name = "record";
+            this.record.Size = new System.Drawing.Size(146, 23);
+            this.record.TabIndex = 16;
+            this.record.Text = "Record Audio";
+            this.record.UseVisualStyleBackColor = true;
+            this.record.Click += new System.EventHandler(this.record_Click);
+            // 
+            // clr
+            // 
+            this.clr.Location = new System.Drawing.Point(683, 70);
+            this.clr.Name = "clr";
+            this.clr.Size = new System.Drawing.Size(75, 23);
+            this.clr.TabIndex = 17;
+            this.clr.Text = "Clear";
+            this.clr.UseVisualStyleBackColor = true;
+            this.clr.Click += new System.EventHandler(this.clr_Click);
+            // 
+            // clearAudio
+            // 
+            this.clearAudio.Location = new System.Drawing.Point(613, 163);
+            this.clearAudio.Name = "clearAudio";
+            this.clearAudio.Size = new System.Drawing.Size(145, 23);
+            this.clearAudio.TabIndex = 18;
+            this.clearAudio.Text = "Clear Audio";
+            this.clearAudio.UseVisualStyleBackColor = true;
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.Testtone);
+            this.ClientSize = new System.Drawing.Size(984, 561);
+            this.Controls.Add(this.clearAudio);
+            this.Controls.Add(this.clr);
+            this.Controls.Add(this.record);
+            this.Controls.Add(this.settings);
             this.Controls.Add(this.restart);
             this.Controls.Add(this.errormessage);
             this.Controls.Add(this.label7);
@@ -310,13 +359,16 @@
             this.Controls.Add(this.groupoutput);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.inputmorse);
+            this.Controls.Add(this.run);
             this.Controls.Add(this.inputlattin);
             this.Controls.Add(this.openmorsetxt);
             this.Controls.Add(this.openlattintxt);
-            this.Controls.Add(this.run);
             this.Controls.Add(this.play);
             this.Controls.Add(this.openaudiofile);
-            this.Name = "Form1";
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(1000, 600);
+            this.MinimumSize = new System.Drawing.Size(1000, 600);
+            this.Name = "MainForm";
             this.Text = "Morse Translator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.groupoutput.ResumeLayout(false);
@@ -335,7 +387,7 @@
         private System.Windows.Forms.Button openmorsetxt;
         private System.Windows.Forms.TextBox inputlattin;
         private System.Windows.Forms.TextBox inputmorse;
-        private System.Windows.Forms.Label label1;
+        public System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupoutput;
         private System.Windows.Forms.TextBox outputlattin;
         private System.Windows.Forms.Label label2;
@@ -352,7 +404,11 @@
         private System.Windows.Forms.Button restart;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Button Testtone;
+        private System.Windows.Forms.Button settings;
+        private System.Windows.Forms.Button record;
+        private System.Windows.Forms.Button clr;
+        private System.Windows.Forms.Button hideOutput;
+        private System.Windows.Forms.Button clearAudio;
     }
 }
 
