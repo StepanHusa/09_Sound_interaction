@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using NAudio.CoreAudioApi;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,8 +13,8 @@ namespace _09_Sound_interaction
 {
     public partial class RecorderForm : Form
     {
-        MainForm mother = null;
-        WaveFileWriter recWaveWriter = null;
+        private MainForm mother = null;
+        private WaveFileWriter recWaveWriter = null;
 
         public RecorderForm(MainForm m)
         {
@@ -21,11 +22,33 @@ namespace _09_Sound_interaction
             mother = m;
         }
 
+        private void mainWaveIn_DataAvailable(object sender, WaveInEventArgs e)
+        {
+            if (recWaveWriter == null) return;
+            recWaveWriter.Write(e.Buffer, 0, e.BytesRecorded);
+            recWaveWriter.Flush();
+
+            float max = 0;
+            var buffer = new WaveBuffer(e.Buffer);
+            // interpret as 32 bit floating point audio
+            for (int index = 0; index < e.BytesRecorded / 4; index++)
+            {
+                var sample = buffer.FloatBuffer[index];
+
+                // absolute value 
+                if (sample < 0) sample = -sample;
+                // is this the max value?
+                if (sample > max) max = sample;
+            }
+            volumeSliderMeter.Volume =max;
+
+        }
+
         private void record_Click(object sender, EventArgs e)
         {
             mother.DisposeAudioOutput();
             int deviceIndex = mother.audioDeviceSelected;
-            if (deviceIndex == 0) { errorMessage.Text = "no oudio device selected,\nselect one in the settings"; return; }
+            if (deviceIndex == -1) { errorMessage.Text = "no oudio device selected,\nselect one in the settings"; return; }
             mother.mainWaveIn = new WaveIn
             {
                 DeviceNumber = deviceIndex,
@@ -35,19 +58,15 @@ namespace _09_Sound_interaction
             recWaveWriter = new WaveFileWriter(mother.temp, mother.mainWaveIn.WaveFormat);
             mother.mainWaveIn.StartRecording();
 
+            mother.errormessage.Text = "recording";
+
             stop.Enabled = true;
             record.Enabled = false;
-        }
-        private void mainWaveIn_DataAvailable(object sender, WaveInEventArgs e)
-        {
-            if (recWaveWriter == null) return;
-            recWaveWriter.Write(e.Buffer, 0, e.BytesRecorded);
-            recWaveWriter.Flush();
         }
 
         private void stop_Click(object sender, EventArgs e)
         {
-            if (recWaveWriter == null) { MessageBox.Show("recording wosn`t running"); return; }
+            if (recWaveWriter == null) { MessageBox.Show("recording didn`t start"); return; }
             recWaveWriter.Dispose();
             recWaveWriter = null;
             mother.PrepareToPlayTempedAudio();
@@ -55,6 +74,7 @@ namespace _09_Sound_interaction
             plot.Visible = true;
             save.Visible = true;
             newRecord.Visible = true;
+            stop.Enabled = false;
         }
 
         private void plot_Click(object sender, EventArgs e)
@@ -71,7 +91,9 @@ namespace _09_Sound_interaction
 
         private void newRecord_Click(object sender, EventArgs e)
         {
-            
+            this.Controls.Clear();
+            this.InitializeComponent();
+
         }
 
         private void save_Click(object sender, EventArgs e)
@@ -81,5 +103,12 @@ namespace _09_Sound_interaction
             if (save.ShowDialog() != DialogResult.OK) return;
             File.Copy(mother.temp, save.FileName);
         }
+
+        private void RecorderForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if(recWaveWriter!=null)
+                stop_Click(sender, e);
+        }
+
     }
 }

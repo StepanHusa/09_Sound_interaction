@@ -51,6 +51,7 @@ namespace _09_Sound_interaction
             this.Controls.Add(this.waveViewer1);
             this.Name = "PlotForm";
             this.Text = "PlotForm";
+            this.Resize += new System.EventHandler(this.PlotForm_Resize);
             this.ResumeLayout(false);
 
         }

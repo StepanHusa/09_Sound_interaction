@@ -36,6 +36,7 @@ namespace _09_Sound_interaction
             this.exit = new System.Windows.Forms.Button();
             this.save = new System.Windows.Forms.Button();
             this.newRecord = new System.Windows.Forms.Button();
+            this.volumeSliderMeter = new NAudio.Gui.VolumeSlider();
             this.SuspendLayout();
             // 
             // record
@@ -110,11 +111,21 @@ namespace _09_Sound_interaction
             this.newRecord.Visible = false;
             this.newRecord.Click += new System.EventHandler(this.newRecord_Click);
             // 
+            // volumeSliderMeter
+            // 
+            this.volumeSliderMeter.Enabled = false;
+            this.volumeSliderMeter.Location = new System.Drawing.Point(13, 104);
+            this.volumeSliderMeter.Name = "volumeSliderMeter";
+            this.volumeSliderMeter.Size = new System.Drawing.Size(198, 24);
+            this.volumeSliderMeter.TabIndex = 7;
+            this.volumeSliderMeter.Volume = 0F;
+            // 
             // RecorderForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(223, 309);
+            this.Controls.Add(this.volumeSliderMeter);
             this.Controls.Add(this.newRecord);
             this.Controls.Add(this.save);
             this.Controls.Add(this.exit);
@@ -124,6 +135,7 @@ namespace _09_Sound_interaction
             this.Controls.Add(this.record);
             this.Name = "RecorderForm";
             this.Text = "RecorderForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RecorderForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -138,5 +150,6 @@ namespace _09_Sound_interaction
         private System.Windows.Forms.Button exit;
         private System.Windows.Forms.Button save;
         private System.Windows.Forms.Button newRecord;
+        private NAudio.Gui.VolumeSlider volumeSliderMeter;
     }
 }

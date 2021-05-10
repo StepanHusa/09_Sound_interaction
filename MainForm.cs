@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using NAudio;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,23 +20,33 @@ namespace _09_Sound_interaction
         public MainForm()
         {
             InitializeComponent();
-            SetTemp();
-            if (f != null)
-                f.Dispose();               
-            f = new SettigsForm(this);
-            
+            InitializeMoreThings();
         }
         //temp directory
         public string temp = null;
+        private string outputTemp = null;
         //Audio device
-        public int audioDeviceSelected=0;
+        public int audioDeviceSelected=-1;
+        internal double frequency = 440;
+        internal double amplitude=0.2;
+
 
         //audio streem declaration
         public WaveIn mainWaveIn = null;
         public BlockAlignReductionStream mainBARStream = null;
         public DirectSoundOut mainDirectSoundOut = null;
 
+        private void InitializeMoreThings()
+        {
+            SetTemp();
+            this.Size = new Size(900, 400);
+            audioDeviceSelected = -1;
+            frequency = 440;
 
+            if (f != null)
+                f.Dispose();
+            f = new SettigsForm(this);
+        }
         //audio actions
         public void PlayPause()
         {
@@ -50,8 +61,8 @@ namespace _09_Sound_interaction
         {
             if (mainDirectSoundOut != null)
             {
-                if(mainDirectSoundOut.PlaybackState == PlaybackState.Playing) mainDirectSoundOut.Stop();
-                mainDirectSoundOut.Dispose();
+                if (mainDirectSoundOut.PlaybackState != PlaybackState.Stopped) mainDirectSoundOut.Stop();
+                mainDirectSoundOut.Dispose();               
                 mainDirectSoundOut = null;
             }
             if (mainBARStream != null)
@@ -65,16 +76,15 @@ namespace _09_Sound_interaction
                 mainWaveIn.Dispose();
                 mainWaveIn = null;
             }
+
             SetTemp();
             label1.Text = "";
-            errormessage.Text = "The audio was disposed succesfully";
+            errormessage.Text = "The audio was disposed";
         }
 
         public void SetTemp()
         {
-            if (temp != null)
-                if (File.Exists(temp))
-                    File.Delete(temp);
+            DeleteTemp();
             temp = Path.GetTempFileName();
         }
         public void DeleteTemp()
@@ -85,7 +95,7 @@ namespace _09_Sound_interaction
         }
 
         //form clocing
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             DisposeAudioOutput();
             DeleteTemp();
@@ -98,6 +108,7 @@ namespace _09_Sound_interaction
             mainBARStream = new BlockAlignReductionStream(new WaveChannel32(new WaveFileReader(temp)));
             mainDirectSoundOut.Init(mainBARStream);
             play.Enabled = true;
+            errormessage.Text = "Audio prepared";
         }
 
         //click actions
@@ -120,7 +131,10 @@ namespace _09_Sound_interaction
                 else choice = -1;
             if (label1.Text != "")
                 if (inputlattin.Text == "" & inputmorse.Text == "")
+                {
                     choice = 3;
+                    outputTemp = temp.MorseToTempAudio();
+                }
                 else choice = -1;
             if (choice == 0) {
                 errormessage.Text = "no input";
@@ -131,15 +145,8 @@ namespace _09_Sound_interaction
                 return;
             }
 
-            else groupoutput.Visible = true;
-
-            float[] a = null;
-            if (choice == 3)
-            {
-                a = Buffer(temp);
-                errormessage.Text = a.ToString();
-                Console.WriteLine(a.Max());
-            }
+            this.Size = new Size(900, 600);
+            groupoutput.Visible = true;
         }
         private void openaudiofile_Click(object sender, EventArgs e)
         {
@@ -149,15 +156,13 @@ namespace _09_Sound_interaction
 
             DisposeAudioOutput();
 
-
             if (open.FileName.EndsWith(".mp3"))
             {
-                ToNewTempWavFile(open.FileName);//creates .tmp file with characteristics of wave
+                open.FileName.ToNewTempWavFile(temp);//creates .tmp file with characteristics of wave
             }//convert mp3 to wav and store in temp
             else if (open.FileName.EndsWith(".wav"))
             {
-                if (!File.Exists(temp)) SetTemp();
-                File.Copy(open.FileName, temp); 
+                File.Copy(open.FileName, temp,true); 
             }            
             else {MessageBox.Show("Not a correct file type"); return; }
 
@@ -188,6 +193,11 @@ namespace _09_Sound_interaction
         }
         private void restart_Click(object sender, EventArgs e)
         {
+            DisposeAudioOutput();
+
+            Controls.Clear();
+            InitializeComponent();
+            InitializeMoreThings();
         }
         private void record_Click(object sender, EventArgs e)
         {
@@ -206,6 +216,7 @@ namespace _09_Sound_interaction
             outputlattin.Clear();
             outputlattin.Clear();
             groupoutput.Hide();
+            this.Size = new Size(900, 400);
         }
         private void savelattintxt_Click(object sender, EventArgs e)
         {
@@ -215,58 +226,39 @@ namespace _09_Sound_interaction
         {
             outputmorse.Text.SaveAsTxtFile();
         }
+        private void clearAudio_click(object sender, EventArgs e)
+        {
+            DisposeAudioOutput();
+            label1.Text = "";
+        }
+
 
         public void Testtone()
         {
             if (mainDirectSoundOut != null)
             {
-                Dispose();
+                DisposeAudioOutput();
                 return;
             }
             mainDirectSoundOut = new DirectSoundOut();
-            WaveTone tone = new WaveTone(500, 0.1);
+            WaveTone tone = new WaveTone(frequency, amplitude);
             mainDirectSoundOut.Init(tone);
             mainDirectSoundOut.Play();
         }
 
         private void settings_Click(object sender, EventArgs e)
-        {            
+        {
+            f.refreshDebug_Click();
             f.Show();
         }
         //audio convertor mp3 -> wav
-        public string ToNewTempWavFile(string source)
-        {
-            if (source.EndsWith(".mp3"))
-                using (Mp3FileReader mp3r = new Mp3FileReader(source))
-                {
-                    using (WaveStream wav = WaveFormatConversionStream.CreatePcmStream(mp3r))
-                        WaveFileWriter.CreateWaveFile(temp, wav);
-                }
-            return (temp);
-        }
         //translate
 
-        public float[] Buffer(string wavfile)
+
+        private void plotInput_Click(object sender, EventArgs e)
         {
-            float max = 0;
-            float[] buffer = null;
-            using (var reader = new AudioFileReader(wavfile))
-            {
-                // find the max peak
-                buffer = new float[reader.WaveFormat.SampleRate];
-                int read;
-                do
-                {
-                    read = reader.Read(buffer, 0, buffer.Length);
-                    for (int n = 0; n < read; n++)
-                    {
-                        var abs = Math.Abs(buffer[n]);
-                        if (abs > max) max = abs;
-                    }
-                } while (read > 0);
-                Console.WriteLine($"Max sample value: {max}");
-            }
-            return buffer;
+            var p = new PlotForm(temp);
+            if (!p.IsDisposed) p.Show();
         }
     }
 
@@ -354,6 +346,34 @@ namespace _09_Sound_interaction
             save.Filter = "TXT file (*.txt)|*.txt;";
             if (save.ShowDialog() != DialogResult.OK) return;
             File.WriteAllText(save.FileName, a);            
+        }
+    }
+    static class AudioExtensions
+    {
+        public static string ToNewTempWavFile(this string source,string temp)
+        {
+            if (source.EndsWith(".mp3"))
+                using (Mp3FileReader mp3r = new Mp3FileReader(source))
+                {
+                    using (WaveStream wav = WaveFormatConversionStream.CreatePcmStream(mp3r))
+                        WaveFileWriter.CreateWaveFile(temp, wav);
+                }
+            return (temp);
+        }
+
+        public static string MorseToTempAudio(this string input)
+        {
+            var output = Path.GetTempFileName();
+            using (WaveFileWriter wr = null)
+            {
+            }
+
+
+                return input;
+        }
+        public static string AudioToMorse(this string input)
+        {
+            return input;
         }
     }
     public class WaveTone : WaveStream

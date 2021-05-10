@@ -1,4 +1,6 @@
-﻿namespace _09_Sound_interaction
+﻿using System;
+
+namespace _09_Sound_interaction
 {
     partial class MainForm
     {
@@ -57,6 +59,7 @@
             this.record = new System.Windows.Forms.Button();
             this.clr = new System.Windows.Forms.Button();
             this.clearAudio = new System.Windows.Forms.Button();
+            this.plotInput = new System.Windows.Forms.Button();
             this.groupoutput.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -75,7 +78,7 @@
             this.play.Enabled = false;
             this.play.Location = new System.Drawing.Point(612, 133);
             this.play.Name = "play";
-            this.play.Size = new System.Drawing.Size(146, 23);
+            this.play.Size = new System.Drawing.Size(86, 23);
             this.play.TabIndex = 1;
             this.play.Text = "play pause";
             this.play.UseVisualStyleBackColor = true;
@@ -148,7 +151,7 @@
             this.groupoutput.Controls.Add(this.playthefile2);
             this.groupoutput.Location = new System.Drawing.Point(13, 261);
             this.groupoutput.Name = "groupoutput";
-            this.groupoutput.Size = new System.Drawing.Size(959, 288);
+            this.groupoutput.Size = new System.Drawing.Size(859, 288);
             this.groupoutput.TabIndex = 9;
             this.groupoutput.TabStop = false;
             this.groupoutput.Text = "output";
@@ -156,7 +159,7 @@
             // 
             // hideOutput
             // 
-            this.hideOutput.Location = new System.Drawing.Point(858, 259);
+            this.hideOutput.Location = new System.Drawing.Point(758, 259);
             this.hideOutput.Name = "hideOutput";
             this.hideOutput.Size = new System.Drawing.Size(95, 23);
             this.hideOutput.TabIndex = 12;
@@ -286,7 +289,7 @@
             // 
             // restart
             // 
-            this.restart.Location = new System.Drawing.Point(897, 65);
+            this.restart.Location = new System.Drawing.Point(791, 70);
             this.restart.Name = "restart";
             this.restart.Size = new System.Drawing.Size(75, 23);
             this.restart.TabIndex = 13;
@@ -305,7 +308,7 @@
             // 
             // settings
             // 
-            this.settings.Location = new System.Drawing.Point(897, 12);
+            this.settings.Location = new System.Drawing.Point(791, 12);
             this.settings.Name = "settings";
             this.settings.Size = new System.Drawing.Size(75, 47);
             this.settings.TabIndex = 15;
@@ -325,9 +328,9 @@
             // 
             // clr
             // 
-            this.clr.Location = new System.Drawing.Point(683, 70);
+            this.clr.Location = new System.Drawing.Point(613, 49);
             this.clr.Name = "clr";
-            this.clr.Size = new System.Drawing.Size(75, 23);
+            this.clr.Size = new System.Drawing.Size(85, 23);
             this.clr.TabIndex = 17;
             this.clr.Text = "Clear";
             this.clr.UseVisualStyleBackColor = true;
@@ -337,16 +340,28 @@
             // 
             this.clearAudio.Location = new System.Drawing.Point(613, 163);
             this.clearAudio.Name = "clearAudio";
-            this.clearAudio.Size = new System.Drawing.Size(145, 23);
+            this.clearAudio.Size = new System.Drawing.Size(85, 23);
             this.clearAudio.TabIndex = 18;
             this.clearAudio.Text = "Clear Audio";
             this.clearAudio.UseVisualStyleBackColor = true;
+            this.clearAudio.Click += new System.EventHandler(this.clearAudio_click);
+            // 
+            // plotInput
+            // 
+            this.plotInput.Location = new System.Drawing.Point(704, 133);
+            this.plotInput.Name = "plotInput";
+            this.plotInput.Size = new System.Drawing.Size(73, 23);
+            this.plotInput.TabIndex = 19;
+            this.plotInput.Text = "Plot Audio";
+            this.plotInput.UseVisualStyleBackColor = true;
+            this.plotInput.Click += new System.EventHandler(this.plotInput_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(984, 561);
+            this.ClientSize = new System.Drawing.Size(884, 561);
+            this.Controls.Add(this.plotInput);
             this.Controls.Add(this.clearAudio);
             this.Controls.Add(this.clr);
             this.Controls.Add(this.record);
@@ -365,18 +380,20 @@
             this.Controls.Add(this.openlattintxt);
             this.Controls.Add(this.play);
             this.Controls.Add(this.openaudiofile);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(1000, 600);
-            this.MinimumSize = new System.Drawing.Size(1000, 600);
+            this.MaximumSize = new System.Drawing.Size(900, 600);
+            this.MinimumSize = new System.Drawing.Size(900, 200);
             this.Name = "MainForm";
             this.Text = "Morse Translator";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.groupoutput.ResumeLayout(false);
             this.groupoutput.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
+
 
         #endregion
 
@@ -400,7 +417,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label errormessage;
+        public System.Windows.Forms.Label errormessage;
         private System.Windows.Forms.Button restart;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
@@ -409,6 +426,7 @@
         private System.Windows.Forms.Button clr;
         private System.Windows.Forms.Button hideOutput;
         private System.Windows.Forms.Button clearAudio;
+        private System.Windows.Forms.Button plotInput;
     }
 }
 

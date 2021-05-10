@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,19 +14,36 @@ namespace _09_Sound_interaction
 {
     public partial class PlotForm : Form
     {
+        private string glTemp = null;
         public PlotForm(string temp)
         {
             InitializeComponent();
-            if (temp == null) Return();
-            var m = new FileInfo(temp);
-            if (!m.Exists) Return();
-            if (m.Length < 1000) Return();
+            glTemp = temp;
+            if (glTemp == null) { Return(); return; }
+            else Plot();
         }
 
         private void Return()
         {
             MessageBox.Show("invalid file to plot");
             this.Close();
+        }
+
+        private void Plot()
+        {
+            var m = new FileInfo(glTemp);
+            if (!m.Exists) { Return(); return; }
+            if (m.Length < 10) { Return(); return; }
+
+            var wfr = new WaveFileReader(glTemp);
+            int w = waveViewer1.Size.Width;
+            waveViewer1.SamplesPerPixel = (int)Math.Ceiling(Convert.ToDouble(wfr.SampleCount) / w);
+            waveViewer1.WaveStream = wfr;
+        }
+
+        private void PlotForm_Resize(object sender, EventArgs e)
+        {
+            Plot();
         }
     }
 }
