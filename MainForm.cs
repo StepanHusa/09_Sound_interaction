@@ -21,6 +21,11 @@ namespace _09_Sound_interaction
         {
             InitializeComponent();
             InitializeMoreThings();
+
+            //(@"D:\1_DOCUMENTS\desktop\test.wav").ToNewTempWavFile(temp);
+            //PrepareToPlayTempedAudio();
+            //label1.Text = "test input";
+
         }
         //temp directory
         public string temp = null;
@@ -28,7 +33,11 @@ namespace _09_Sound_interaction
         //Audio device
         public int audioDeviceSelected=-1;
         internal double frequency = 440;
-        internal double amplitude=0.2;
+        internal float amplitude=1;
+        internal WaveFormat mainWaveFormat = null;
+
+        internal float threshold = (float)0.5;
+        internal int timeDivide = 250;
 
 
         //audio streem declaration
@@ -112,15 +121,16 @@ namespace _09_Sound_interaction
 
         public void PrepareToPlayTempedAudio()
         {
-            if (temp == null) { errormessage.Text = "no file tempted"; }
-            var m = new FileInfo(temp);
-            if (!m.Exists) { errormessage.Text = "invalid file to read"; return; }
-            if (m.Length < 10) { errormessage.Text = "invalid file to read"; return; }
-            mainDirectSoundOut = new DirectSoundOut();
-            mainBARStream = new BlockAlignReductionStream(new WaveChannel32(new WaveFileReader(temp)));
-            mainDirectSoundOut.Init(mainBARStream);
-            play.Enabled = true;
-            errormessage.Text = "Audio prepared";
+                if (temp == null) { errormessage.Text = "no file tempted"; }
+                var m = new FileInfo(temp);
+                if (!m.Exists) { errormessage.Text = "invalid file to read"; return; }
+                if (m.Length < 10) { errormessage.Text = "invalid file to read"; return; }
+                mainDirectSoundOut = new DirectSoundOut();
+                mainBARStream = new BlockAlignReductionStream(new WaveChannel32(new WaveFileReader(temp)));
+                mainDirectSoundOut.Init(mainBARStream);
+                play.Enabled = true;
+                errormessage.Text = "Audio prepared";
+
         }
 
         //click actions
@@ -132,8 +142,8 @@ namespace _09_Sound_interaction
                 {
                     choice = 1;
                     outputmorse.Text = inputlattin.Text.ToMorse();
+                    temp2 = outputmorse.Text.MorseToTempAudio(mainWaveFormat);
                     label2.Text = "converted audio";
-                    temp2 = outputmorse.Text.MorseToTempAudio();
                 }
                 else choice = -1;
             if (inputmorse.Text != "")
@@ -141,12 +151,17 @@ namespace _09_Sound_interaction
                 {
                     choice = 2;
                     outputlattin.Text = inputmorse.Text.ToLattin();
+                    outputmorse.Text = outputlattin.Text.ToMorse();
+                    temp2 = outputmorse.Text.MorseToTempAudio(mainWaveFormat);
+                    label2.Text = "converted audio";
                 }
                 else choice = -1;
             if (label1.Text != "")
                 if (inputlattin.Text == "" & inputmorse.Text == "")
                 {
                     choice = 3;
+                    outputmorse.Text= temp.AudioToMorse(threshold,timeDivide);
+                    outputlattin.Text = outputmorse.Text.ToLattin();
                 }
                 else choice = -1;
             if (choice == 0) {
@@ -159,9 +174,12 @@ namespace _09_Sound_interaction
             }
 
             DisposeAudioOutput();
-            DeleteTemp();
-            temp = temp2;
-            PrepareToPlayTempedAudio();
+            if (temp2 != null)
+            {
+                DeleteTemp();
+                temp = temp2;
+                PrepareToPlayTempedAudio();
+            }
 
             this.Size = new Size(900, 600);
             groupoutput.Visible = true;
@@ -222,6 +240,7 @@ namespace _09_Sound_interaction
         }
         private void hideOutput_Click(object sender, EventArgs e)
         {
+            DisposeAudioOutput();
             DeleteTemp2();
             label2.Text = null;
             outputlattin.Clear();
@@ -343,7 +362,7 @@ namespace _09_Sound_interaction
 
         public static string ToMorse(this string lattin)
         {
-            string inp = lattin.ToLower().ClearText().Trim(' ');
+            string inp = lattin.ToLower().Trim(' ');
             char[] inplet = inp.ToCharArray();
             string[] outlet = new string[inplet.Length];
             char[] keyA = lattinAlpha.ToCharArray();
@@ -413,14 +432,14 @@ namespace _09_Sound_interaction
             var characters = input.ToCharArray();
             for (int i = 0; i < characters.Length; i++)
             {
-                wr.Write(silent, 0, silent.Length);
-
                 if(characters[i]=='.')
                     wr.Write(shorttt, 0, shorttt.Length);
                 else if(characters[i]=='-')
                     wr.Write(longgg, 0, longgg.Length);
                 else if(characters[i]=='/')
-                    wr.Write(silentLong, 0, silent.Length);
+                    wr.Write(silentLong, 0, silentLong.Length);
+
+                wr.Write(silent, 0, silent.Length);
             }
             wr.Dispose();
             return temp2;
@@ -462,29 +481,64 @@ namespace _09_Sound_interaction
         }
 
 
-        public static string AudioToMorse(this string input,float trashold=(float)0.2)
+        public static string AudioToMorse(this string input, float threshold = (float)0.5, int lengthShortLongThreshold=250, int timeOfSeparation=-1)
         {
+            int countTr = 10;
+            if (timeOfSeparation == -1)
+                timeOfSeparation = lengthShortLongThreshold / countTr;
+            else countTr = lengthShortLongThreshold / timeOfSeparation;
+
+
+            var outputlist = new List<char>(); 
 
             WaveChannel32 wave = new WaveChannel32(new WaveFileReader(input));
-            int l = 16384;
-            int length =(int) wave.Length / l;
+            int l =  wave.WaveFormat.SampleRate * timeOfSeparation / 1000 *8;
             byte[] buffer = new byte[l];
-            int read = 0;
-            float max;
-            float[] list = new float[length];
-            for (int j = 0; j < length; j++)
+            var list = new List<float>();
+            int j = 0;
+
+            while (wave.Position<wave.Length)
             {
-                read = wave.Read(buffer, 0, l);
-                for (int i = 0; i < read-1; i++)
+                list.Add(0);
+                int read = wave.Read(buffer, 0, l);
+                for (int i = 0; i < read/4; i++)
                 {
-                    max = BitConverter.ToSingle(buffer, i * 4);
+                    float max = BitConverter.ToSingle(buffer, i * 4);
                     if (max < 0) max = -max;
                     if (max > list[j]) list[j] = max;
                 }
+                j++;
             }
+            wave.Dispose();
 
 
-            return input;
+            bool silent_NotTone = false;
+            if (list[0] < threshold) silent_NotTone = true;
+
+            while (list.Count > 0)
+            {
+                l = 0;
+
+                if (silent_NotTone)
+                    while (list[l] < threshold) { l++; if (l >= list.Count) break;  }
+                else while (list[l] > threshold) { l++; if (l >= list.Count) break; }
+
+                for (int i = 0; i < l; i++)
+                    list.RemoveAt(0);
+
+                if (!silent_NotTone)
+                {
+                    if (l <= 1) { }
+                    else if (l > 10 * countTr) { }
+                    else if (l <= countTr) outputlist.Add('.');
+                    else outputlist.Add('-');
+                }
+                else
+                    if (l > countTr) outputlist.Add('/');
+                silent_NotTone ^= true;
+
+            }
+            return (string.Join("", outputlist));
         }
     }
     public class WaveTone : WaveStream
@@ -518,4 +572,6 @@ namespace _09_Sound_interaction
             return count;
         }        
     }
+
+
 }
