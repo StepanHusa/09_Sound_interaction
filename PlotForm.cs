@@ -60,7 +60,6 @@ namespace _09_Sound_interaction
             if (!m.Exists) return;
             if (m.Length < 10) return;
             Plot();
-
         }
     }
 }
