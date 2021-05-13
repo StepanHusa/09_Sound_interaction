@@ -118,6 +118,7 @@ namespace _09_Sound_interaction
             this.volumeSliderMeter.Name = "volumeSliderMeter";
             this.volumeSliderMeter.Size = new System.Drawing.Size(198, 24);
             this.volumeSliderMeter.TabIndex = 7;
+            this.volumeSliderMeter.Visible = false;
             this.volumeSliderMeter.Volume = 0F;
             // 
             // RecorderForm

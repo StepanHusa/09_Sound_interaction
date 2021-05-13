@@ -62,6 +62,7 @@ namespace _09_Sound_interaction
 
             stop.Enabled = true;
             record.Enabled = false;
+            volumeSliderMeter.Visible = true;
         }
 
         private void stop_Click(object sender, EventArgs e)

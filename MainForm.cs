@@ -24,7 +24,7 @@ namespace _09_Sound_interaction
         }
         //temp directory
         public string temp = null;
-        private string outputTemp = null;
+        private string temp2 = null;
         //Audio device
         public int audioDeviceSelected=-1;
         internal double frequency = 440;
@@ -93,17 +93,29 @@ namespace _09_Sound_interaction
                 if(File.Exists(temp))
                     File.Delete(temp);
         }
+        public void DeleteTemp2()
+        {
+            if (temp2 != null)
+                if (File.Exists(temp2))
+                    File.Delete(temp2);
+        }
+
 
         //form clocing
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             DisposeAudioOutput();
             DeleteTemp();
+            DeleteTemp2();
             f.Close();
         }
 
         public void PrepareToPlayTempedAudio()
         {
+            if (temp == null) { errormessage.Text = "no file tempted"; }
+            var m = new FileInfo(temp);
+            if (!m.Exists) { errormessage.Text = "invalid file to read"; return; }
+            if (m.Length < 10) { errormessage.Text = "invalid file to read"; return; }
             mainDirectSoundOut = new DirectSoundOut();
             mainBARStream = new BlockAlignReductionStream(new WaveChannel32(new WaveFileReader(temp)));
             mainDirectSoundOut.Init(mainBARStream);
@@ -120,6 +132,8 @@ namespace _09_Sound_interaction
                 {
                     choice = 1;
                     outputmorse.Text = inputlattin.Text.ToMorse();
+                    label2.Text = "converted audio";
+                    temp2 = outputmorse.Text.MorseToTempAudio();
                 }
                 else choice = -1;
             if (inputmorse.Text != "")
@@ -133,7 +147,6 @@ namespace _09_Sound_interaction
                 if (inputlattin.Text == "" & inputmorse.Text == "")
                 {
                     choice = 3;
-                    outputTemp = temp.MorseToTempAudio();
                 }
                 else choice = -1;
             if (choice == 0) {
@@ -145,6 +158,11 @@ namespace _09_Sound_interaction
                 return;
             }
 
+            DisposeAudioOutput();
+            DeleteTemp();
+            temp = temp2;
+            PrepareToPlayTempedAudio();
+
             this.Size = new Size(900, 600);
             groupoutput.Visible = true;
         }
@@ -155,16 +173,7 @@ namespace _09_Sound_interaction
             var openinfo = new FileInfo(open.FileName);
 
             DisposeAudioOutput();
-
-            if (open.FileName.EndsWith(".mp3"))
-            {
-                open.FileName.ToNewTempWavFile(temp);//creates .tmp file with characteristics of wave
-            }//convert mp3 to wav and store in temp
-            else if (open.FileName.EndsWith(".wav"))
-            {
-                File.Copy(open.FileName, temp,true); 
-            }            
-            else {MessageBox.Show("Not a correct file type"); return; }
+            open.FileName.ToNewTempWavFile(temp);
 
             PrepareToPlayTempedAudio();
 
@@ -213,6 +222,8 @@ namespace _09_Sound_interaction
         }
         private void hideOutput_Click(object sender, EventArgs e)
         {
+            DeleteTemp2();
+            label2.Text = null;
             outputlattin.Clear();
             outputlattin.Clear();
             groupoutput.Hide();
@@ -231,7 +242,6 @@ namespace _09_Sound_interaction
             DisposeAudioOutput();
             label1.Text = "";
         }
-
 
         public void Testtone()
         {
@@ -253,14 +263,28 @@ namespace _09_Sound_interaction
         }
         //audio convertor mp3 -> wav
         //translate
-
-
         private void plotInput_Click(object sender, EventArgs e)
         {
             var p = new PlotForm(temp);
             if (!p.IsDisposed) p.Show();
         }
-    }
+
+        private void savewavfile_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog save = new SaveFileDialog { Filter = "audio file (*.wav)|*.wav;", Title = "Save Audio File" };
+            if (save.ShowDialog() != DialogResult.OK) return;
+            File.Copy(temp2, save.FileName,true);
+        }
+
+        private void replay_Click(object sender, EventArgs e)
+        {
+            
+            if (mainBARStream != null)
+            {
+                mainBARStream.Position = 0;
+            }
+            }
+        }
 
     static class StringExtensions
     {
@@ -353,26 +377,113 @@ namespace _09_Sound_interaction
         public static string ToNewTempWavFile(this string source,string temp)
         {
             if (source.EndsWith(".mp3"))
+            {
                 using (Mp3FileReader mp3r = new Mp3FileReader(source))
                 {
                     using (WaveStream wav = WaveFormatConversionStream.CreatePcmStream(mp3r))
                         WaveFileWriter.CreateWaveFile(temp, wav);
                 }
+            }
+            else if (source.EndsWith(".wav"))
+            {
+                File.Copy(source, temp, true);
+            }
+            else MessageBox.Show("not a correct file type to convert");
+
+                
             return (temp);
         }
 
-        public static string MorseToTempAudio(this string input)
+        public static string MorseToTempAudio(this string input, WaveFormat outFormat = null, 
+                                              float amplitude =1, float frequency=1000, int length1=100, int length2=400,
+                                              int lengthSilentShort=100, int lengthSilentLong = 600)
         {
-            var output = Path.GetTempFileName();
-            using (WaveFileWriter wr = null)
+
+            string temp2 = Path.GetTempFileName();
+            if(outFormat==null)
+                outFormat = new WaveFormat(44100, 16, 1);
+
+            var shorttt = SineForfMiliseconds(length1, outFormat, amplitude, frequency);
+            var longgg = SineForfMiliseconds(length2, outFormat, amplitude, frequency);
+            var silent = SineForfMiliseconds(lengthSilentShort, outFormat, 0, frequency);
+            var silentLong = SineForfMiliseconds(lengthSilentLong, outFormat, 0, frequency);
+
+            WaveFileWriter wr = new WaveFileWriter(temp2, outFormat);
+
+            var characters = input.ToCharArray();
+            for (int i = 0; i < characters.Length; i++)
             {
+                wr.Write(silent, 0, silent.Length);
+
+                if(characters[i]=='.')
+                    wr.Write(shorttt, 0, shorttt.Length);
+                else if(characters[i]=='-')
+                    wr.Write(longgg, 0, longgg.Length);
+                else if(characters[i]=='/')
+                    wr.Write(silentLong, 0, silent.Length);
+            }
+            wr.Dispose();
+            return temp2;
+        }
+        static byte[] SineForfMiliseconds(int time, WaveFormat format, float amplitude = 1, float frequency = 1000)
+        {
+            int samples = (format.SampleRate*time/1000);
+            int count = samples * 2;
+            double position = 0;
+            byte[] buffer = new byte[count];
+            int cooloff = 2 * format.SampleRate / (int) frequency;
+            if (cooloff > samples) cooloff = 0;
+
+
+            for (int i = 0; i < samples- cooloff; i++)
+            {
+                double sine = amplitude * Math.Sin(Math.PI * 2 * frequency * position);
+                short truncated = (short)Math.Round(sine * (Math.Pow(2, 15) - 1));
+                buffer[i * 2] = (byte)(truncated & 0x00ff);
+                buffer[i * 2 + 1] = (byte)((truncated & 0xff00) >> 8);
+                position += 1.0 / format.SampleRate;
+            }
+            //fancy stuff, so the sound doesen`t click in the end
+            double end = 1;
+            for (int i = samples- cooloff; i < samples; i++)
+            {
+                double sine = amplitude * Math.Sin(Math.PI * 2 * frequency * position);
+                sine *= end;
+                short truncated = (short)Math.Round(sine * (Math.Pow(2, 15) - 1));
+                buffer[i * 2] = (byte)(truncated & 0x00ff);
+                buffer[i * 2 + 1] = (byte)((truncated & 0xff00) >> 8);
+
+                end -= 1.0 / cooloff;
+                position += 1.0 / format.SampleRate;
             }
 
 
-                return input;
+            return buffer;
         }
-        public static string AudioToMorse(this string input)
+
+
+        public static string AudioToMorse(this string input,float trashold=(float)0.2)
         {
+
+            WaveChannel32 wave = new WaveChannel32(new WaveFileReader(input));
+            int l = 16384;
+            int length =(int) wave.Length / l;
+            byte[] buffer = new byte[l];
+            int read = 0;
+            float max;
+            float[] list = new float[length];
+            for (int j = 0; j < length; j++)
+            {
+                read = wave.Read(buffer, 0, l);
+                for (int i = 0; i < read-1; i++)
+                {
+                    max = BitConverter.ToSingle(buffer, i * 4);
+                    if (max < 0) max = -max;
+                    if (max > list[j]) list[j] = max;
+                }
+            }
+
+
             return input;
         }
     }
@@ -392,6 +503,7 @@ namespace _09_Sound_interaction
         public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public override long Length { get { return long.MaxValue; } }
         public override WaveFormat WaveFormat { get { return new WaveFormat(44100, 16, 1); } }
+
         public override int Read(byte[] buffer, int offset, int count)
         {
             int samples = count / 2;

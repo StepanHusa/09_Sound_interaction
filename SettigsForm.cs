@@ -145,5 +145,6 @@ namespace _09_Sound_interaction
         {
             mother.amplitude = volume.Volume;
         }
+
     }
 }

@@ -49,7 +49,6 @@ namespace _09_Sound_interaction
             this.outputmorse = new System.Windows.Forms.TextBox();
             this.savemorsetxt = new System.Windows.Forms.Button();
             this.savewavfile = new System.Windows.Forms.Button();
-            this.playthefile2 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.errormessage = new System.Windows.Forms.Label();
@@ -60,6 +59,7 @@ namespace _09_Sound_interaction
             this.clr = new System.Windows.Forms.Button();
             this.clearAudio = new System.Windows.Forms.Button();
             this.plotInput = new System.Windows.Forms.Button();
+            this.replay = new System.Windows.Forms.Button();
             this.groupoutput.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,11 +76,11 @@ namespace _09_Sound_interaction
             // play
             // 
             this.play.Enabled = false;
-            this.play.Location = new System.Drawing.Point(612, 133);
+            this.play.Location = new System.Drawing.Point(709, 133);
             this.play.Name = "play";
-            this.play.Size = new System.Drawing.Size(86, 23);
+            this.play.Size = new System.Drawing.Size(82, 23);
             this.play.TabIndex = 1;
-            this.play.Text = "play pause";
+            this.play.Text = "Play/Pause";
             this.play.UseVisualStyleBackColor = true;
             this.play.Click += new System.EventHandler(this.play_Click);
             // 
@@ -148,7 +148,6 @@ namespace _09_Sound_interaction
             this.groupoutput.Controls.Add(this.outputmorse);
             this.groupoutput.Controls.Add(this.savemorsetxt);
             this.groupoutput.Controls.Add(this.savewavfile);
-            this.groupoutput.Controls.Add(this.playthefile2);
             this.groupoutput.Location = new System.Drawing.Point(13, 261);
             this.groupoutput.Name = "groupoutput";
             this.groupoutput.Size = new System.Drawing.Size(859, 288);
@@ -247,18 +246,7 @@ namespace _09_Sound_interaction
             this.savewavfile.TabIndex = 0;
             this.savewavfile.Text = "save wav file";
             this.savewavfile.UseVisualStyleBackColor = true;
-            this.savewavfile.Click += new System.EventHandler(this.openaudiofile_Click);
-            // 
-            // playthefile2
-            // 
-            this.playthefile2.Enabled = false;
-            this.playthefile2.Location = new System.Drawing.Point(599, 154);
-            this.playthefile2.Name = "playthefile2";
-            this.playthefile2.Size = new System.Drawing.Size(146, 23);
-            this.playthefile2.TabIndex = 1;
-            this.playthefile2.Text = "play the file";
-            this.playthefile2.UseVisualStyleBackColor = true;
-            this.playthefile2.Click += new System.EventHandler(this.play_Click);
+            this.savewavfile.Click += new System.EventHandler(this.savewavfile_Click);
             // 
             // label3
             // 
@@ -282,14 +270,14 @@ namespace _09_Sound_interaction
             // 
             this.errormessage.AutoSize = true;
             this.errormessage.ForeColor = System.Drawing.Color.DarkRed;
-            this.errormessage.Location = new System.Drawing.Point(154, 196);
+            this.errormessage.Location = new System.Drawing.Point(700, 200);
             this.errormessage.Name = "errormessage";
             this.errormessage.Size = new System.Drawing.Size(0, 15);
             this.errormessage.TabIndex = 12;
             // 
             // restart
             // 
-            this.restart.Location = new System.Drawing.Point(791, 70);
+            this.restart.Location = new System.Drawing.Point(797, 73);
             this.restart.Name = "restart";
             this.restart.Size = new System.Drawing.Size(75, 23);
             this.restart.TabIndex = 13;
@@ -308,7 +296,7 @@ namespace _09_Sound_interaction
             // 
             // settings
             // 
-            this.settings.Location = new System.Drawing.Point(791, 12);
+            this.settings.Location = new System.Drawing.Point(797, 12);
             this.settings.Name = "settings";
             this.settings.Size = new System.Drawing.Size(75, 47);
             this.settings.TabIndex = 15;
@@ -338,9 +326,9 @@ namespace _09_Sound_interaction
             // 
             // clearAudio
             // 
-            this.clearAudio.Location = new System.Drawing.Point(613, 163);
+            this.clearAudio.Location = new System.Drawing.Point(797, 163);
             this.clearAudio.Name = "clearAudio";
-            this.clearAudio.Size = new System.Drawing.Size(85, 23);
+            this.clearAudio.Size = new System.Drawing.Size(75, 23);
             this.clearAudio.TabIndex = 18;
             this.clearAudio.Text = "Clear Audio";
             this.clearAudio.UseVisualStyleBackColor = true;
@@ -348,19 +336,30 @@ namespace _09_Sound_interaction
             // 
             // plotInput
             // 
-            this.plotInput.Location = new System.Drawing.Point(704, 133);
+            this.plotInput.Location = new System.Drawing.Point(797, 133);
             this.plotInput.Name = "plotInput";
-            this.plotInput.Size = new System.Drawing.Size(73, 23);
+            this.plotInput.Size = new System.Drawing.Size(75, 23);
             this.plotInput.TabIndex = 19;
             this.plotInput.Text = "Plot Audio";
             this.plotInput.UseVisualStyleBackColor = true;
             this.plotInput.Click += new System.EventHandler(this.plotInput_Click);
+            // 
+            // replay
+            // 
+            this.replay.Location = new System.Drawing.Point(709, 163);
+            this.replay.Name = "replay";
+            this.replay.Size = new System.Drawing.Size(82, 23);
+            this.replay.TabIndex = 20;
+            this.replay.Text = "Replay";
+            this.replay.UseVisualStyleBackColor = true;
+            this.replay.Click += new System.EventHandler(this.replay_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(884, 561);
+            this.Controls.Add(this.replay);
             this.Controls.Add(this.plotInput);
             this.Controls.Add(this.clearAudio);
             this.Controls.Add(this.clr);
@@ -412,7 +411,6 @@ namespace _09_Sound_interaction
         private System.Windows.Forms.TextBox outputmorse;
         private System.Windows.Forms.Button savemorsetxt;
         private System.Windows.Forms.Button savewavfile;
-        private System.Windows.Forms.Button playthefile2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label6;
@@ -427,6 +425,7 @@ namespace _09_Sound_interaction
         private System.Windows.Forms.Button hideOutput;
         private System.Windows.Forms.Button clearAudio;
         private System.Windows.Forms.Button plotInput;
+        private System.Windows.Forms.Button replay;
     }
 }
 
